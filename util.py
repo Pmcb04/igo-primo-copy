@@ -1,25 +1,24 @@
 import os
-import shutil
 import countries
 from dotenv import load_dotenv
 
 load_dotenv()
 
 # Import env variables
-BUILDING=os.getenv('BUILDING')
-CAR=os.getenv('CAR')
-DEM=os.getenv('DEM')
-LANG=os.getenv('LANG')
-LICENSE=os.getenv('LICENSE')
-MAPS=os.getenv('MAPS')
-PHONEME=os.getenv('PHONEME')
-POI=os.getenv('POI')
-SCHEME=os.getenv('SCHEME')
-SKIN=os.getenv('SKIN')
-SPEEDCAM=os.getenv('SPEEDCAM')
-TMC=os.getenv('TMC')
-USERDATA=os.getenv('USERDATA')
-DESTINATION=os.getenv('DESTINATION')
+BUILDING=os.getenv('BUILDING_PATH')
+CAR=os.getenv('CAR_PATH')
+DEM=os.getenv('DEM_PATH')
+LANG=os.getenv('LANG_PATH')
+LICENSE=os.getenv('LICENSE_PATH')
+MAPS=os.getenv('MAPS_PATH')
+PHONEME=os.getenv('PHONEME_PATH')
+POI=os.getenv('POI_PATH')
+SCHEME=os.getenv('SCHEME_PATH')
+SKIN=os.getenv('SKIN_PATH')
+SPEEDCAM=os.getenv('SPEEDCAM_PATH')
+TMC=os.getenv('TMC_PATH')
+USERDATA=os.getenv('USERDATA_PATH')
+DESTINATION=os.getenv('DESTINATION_PATH')
 
 # get the full list of paths
 building = os.listdir(BUILDING)

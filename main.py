@@ -9,120 +9,133 @@ from tkinter import *
 from tkinter import ttk
 from PIL import ImageTk, Image
 
-WIDTH = 900
-HEIGHT = 600
-
-selected_button = None
-last_bg = None
-
 class Countries():
 
-    def country(self,name):
+    def countryFlagImage(self,name):
         image = Image.open('./flags/' + name + '.png')
         image = image.resize((60,40), Image.LANCZOS)
         photo = ImageTk.PhotoImage(image)
         return photo
 
+    def getCountryList(self):
+        return self.countryButtonList
+
     def __init__(self, frame):
         super().__init__()
         COLUMNS = 5
-        COUNTRIES = util.get_all_countries() 
-        for country_name in COUNTRIES:
-            r, c = divmod(COUNTRIES.index(country_name), COLUMNS)
-            photo = self.country(country_name)
-            label = Label(frame, text=country_name, image=photo, compound='top')
-            label.image = photo # keep a reference!
-            label.grid(row=r, column=c)
+        COUNTRIES = util.get_all_countries()
+        self.countryButtonList = [None] * len(COUNTRIES)
 
-def change_selected_button(button):
-    global selected_button, last_bg
-    if selected_button is not None:
-        selected_button.config(bg=last_bg)
-    selected_button = button
-    last_bg = button.cget("bg")
-    button.config(bg="orange")
 
-def ResponsiveWidget(widget, *args, **kwargs):
-    bindings = {'<Enter>': {'state': 'active'},
-                '<Leave>': {'state': 'normal'}}
+        for countryName in COUNTRIES:
+            r, c = divmod(COUNTRIES.index(countryName), COLUMNS)
+            index = COUNTRIES.index(countryName)
+            flag = self.countryFlagImage(countryName)
+            
+            self.countryButtonList[index] =  SelectedButton(frame, countryName, flag)
+            self.countryButtonList[index].get().grid(row=r, column=c)
+            self.countryButtonList[index].image = flag # keep a reference!
+            # countryButton = SelectedButton(frame, countryName, flag).get()
+            # countryButton.grid(row=r, column=c)
 
-    w = widget(*args, **kwargs)
 
-    for (k, v) in bindings.items():
-        w.bind(k, lambda e, kwarg=v: e.widget.config(**kwarg))
+class SelectedButton(): 
 
-    return w
+    selected = False
+    bg_selected = "light blue"
+    bg_no_selected = "white"
+    button = None
+
+    def change(self):
+        if self.selected:
+            self.button.config(bg=self.bg_no_selected)
+        else:
+            self.button.config(bg=self.bg_selected)
+        self.selected = not self.selected
+
+    def get(self):
+        return self.button
+
+    def isSelected(self):
+        return self.selected
+
+    def __init__(self, frame, text, image=None):
+        self.button = tk.Button(frame, text=text, image=image, bg=self.bg_no_selected, compound='top')
+        self.button.config(command=lambda button=self.button: self.change())
 
 class App():
+
     def __init__(self):
         super().__init__()
+
+        WIDTH = 1100
+        HEIGHT = 850
+
+        LEFT_FRAME_WIDTH = (WIDTH/3) * 1
+        RIGTH_FRAME_WIDTH = (WIDTH/3) * 2
+
+        OPTIONS = ["building", "car", "dem", "lang", "license", "maps", "phoneme", "skin", "speedcam", "tmc", "userdata"]
+        optionButtonList = [None] * len(OPTIONS)
+
 
         self = Tk()
         self.title('Igo Primo Update Files')
         self.resizable(1,1)
-        self.config(bg="skyblue")
+        self.geometry("{}x{}".format(WIDTH, HEIGHT))
+        #self.config(bg="skyblue")
 
-        LEFT_FRAME_WIDTH = (WIDTH/3) * 1
-        RIGHT_FRAME_WIDTH = (WIDTH/3) * 2
 
         # Create Left Frame widget
-        left_frame = Frame(self, width=LEFT_FRAME_WIDTH, height=HEIGHT)
-        left_frame.grid(row=0, column=0, padx=10, pady=5)
+        leftFrame = Frame(self, width=LEFT_FRAME_WIDTH, height=HEIGHT)
+        leftFrame.grid(row=0, column=0, padx=10, pady=5)
 
-        # Create destination frame within left_frame
-        dest_frame = Frame(left_frame,bg="red")
-        dest_frame.grid(row=0, column=0, padx=5, pady=5)
+        # Create destination frame within leftFrame
+        destinationFrame = Frame(leftFrame)
+        destinationFrame.grid(row=0, column=0, padx=5, pady=5)
 
-        Label(dest_frame, text="Destination path").grid(row=0, column=0, padx=5, pady=5)
-        Label(dest_frame, text=util.DESTINATION).grid(row=1, column=0, padx=5, pady=5)
+        Label(destinationFrame, text="Destination path").grid(row=0, column=0, padx=5, pady=5)
+        Label(destinationFrame, text=util.DESTINATION).grid(row=1, column=0, padx=5, pady=5)
 
-        # Create options_frame frame within left_frame
-        options_frame = Frame(left_frame, bg="purple")
-        options_frame.grid(row=1, column=0, padx=5, pady=5)
+        # Create optionsFrame frame within leftFrame
+        optionsFrame = Frame(leftFrame)
+        optionsFrame.grid(row=1, column=0, padx=5, pady=5)
 
         # Create label above the tool_bar
-        Label(options_frame, text="Options").grid(row=0, column=0, padx=5, pady=5)
+        Label(optionsFrame, text="Options").grid(row=0, column=0, padx=5, pady=5)
         # Separator object
-        separator = ttk.Separator(options_frame, orient='horizontal')
+        separator = ttk.Separator(optionsFrame, orient='horizontal')
         separator.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
 
+        for option in OPTIONS:
+            index = OPTIONS.index(option)
+            optionButtonList[index] = SelectedButton(optionsFrame, option)
+            optionButtonList[index].get().grid(row=index+2, column=0, padx=5, pady=5)
 
-        button1 = ResponsiveWidget(
-            tk.Button,
-            options_frame,
-            text='abc',
-            fg='black',
-            activebackground='#B7E3F9',
-            activeforeground='black',
-            highlightthickness=0,
-            relief='flat',
-        )
+        def copy():
+            
+            optionsSelected = []
+            countriesSelected = []
 
-        button1.config(command=lambda button=button1: change_selected_button(button))
-        button1.grid(row=2, column=0, padx=5, pady=5)
-        #Checkbutton(options_frame, text="building").grid(row=2, column=0, padx=5, pady=5)
-        Checkbutton(options_frame, text="car").grid(row=3, column=0, padx=5, pady=5)
-        Checkbutton(options_frame, text="dem").grid(row=4, column=0, padx=5, pady=5)
-        Checkbutton(options_frame, text="lang").grid(row=5, column=0, padx=5, pady=5)
-        Checkbutton(options_frame, text="license").grid(row=6, column=0, padx=5, pady=5)
-        Checkbutton(options_frame, text="maps").grid(row=7, column=0, padx=5, pady=5)
-        Checkbutton(options_frame, text="phoneme").grid(row=8, column=0, padx=5, pady=5)
-        Checkbutton(options_frame, text="skin").grid(row=9, column=0, padx=5, pady=5)
-        Checkbutton(options_frame, text="speedcam").grid(row=10, column=0, padx=5, pady=5)
-        Checkbutton(options_frame, text="tmc").grid(row=11, column=0, padx=5, pady=5)
-        Checkbutton(options_frame, text="userdata").grid(row=12, column=0, padx=5, pady=5)
+            # get all options selected
+            for option in optionButtonList:
+                if option.isSelected():
+                    optionsSelected.append(option.get()['text'])
+
+            # get all countries selected
+            for country in countries.getCountryList():
+                if country.isSelected():
+                    countriesSelected.append(country.get()['text'])
+            
+            print(optionsSelected)
+            print(countriesSelected)
 
 
-        button = Button(left_frame, text="Copy").grid(row=2, column=0, padx=5, pady=5)
-
-        
-
-
+        copyButton = Button(leftFrame, text="Copy", command=copy).grid(row=2, column=0, padx=5, pady=5)
 
         # Create Left Frame widget
-        right_frame = Frame(self, width=RIGHT_FRAME_WIDTH, height=HEIGHT)
-        countries = Countries(right_frame)
-        right_frame.grid(row=0, column=1, padx=10, pady=5)
+        rightFrame = Frame(self, width=RIGTH_FRAME_WIDTH, height=HEIGHT)
+        countries = Countries(rightFrame)
+        rightFrame.grid(row=0, column=1, padx=10, pady=5)
 
         self.mainloop()
 
